@@ -33,20 +33,10 @@ Given a spoken query, the system:
 |------|-------------|
 | `qbe_std_demo.html` | Self-contained interactive demo with speech audio |
 
-### How to use the demo
-- Click **▶ PLAY** on the spoken query to hear *"water"*
-- Click **▶** on any corpus document to hear it spoken
-- **DOC 2** (male voice) and **DOC 3** (female voice) contain the query word
-- **DOC 1** and **DOC 4** do not contain the query — no match
-- Ranked results show matched documents ordered by retrieval score
+
 
 ---
 
-## Research Context
-
-This demo accompanies the pre-PhD synopsis:
-
-> **From TF-IDF to PMI-QuEST: Efficient Query-by-Example Spoken Term Detection using Discrete Acoustic Tokens**
 
 **Author:** Akanksha Singh
 **Affiliations:** IIT Kanpur &nbsp;·&nbsp; La Trobe University, Melbourne
@@ -73,7 +63,3 @@ If you find this work useful, please cite:
 ```
 
 ---
-
-<p align="center">
-  Made with ❤️ for the pre-PhD synopsis defense &nbsp;·&nbsp; IIT Kanpur
-</p>
