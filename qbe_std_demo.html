@@ -88,17 +88,48 @@
 
   /* SYSTEM BOX */
   .system-box {
-  background: linear-gradient(145deg, #534AB7 0%, #7F77DD 100%);
+  background: linear-gradient(
+      135deg,
+      #3C3489 0%,
+      #534AB7 35%,
+      #7F77DD 70%,
+      #AFA9EC 100%
+  );
+
   border-radius: 18px;
-  width: 120px;          /* wider */
-  min-height: 180px;     /* taller */
+  width: 150px;
+  min-height: 180px;
   padding: 28px 18px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 18px rgba(83,74,183,0.25);
+
+  gap: 10px;
+
+  box-shadow:
+      0 10px 28px rgba(83,74,183,0.30),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+ .system-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.system-sub {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  letter-spacing: 0.14em;
+  text-align: center;
+  line-height: 1.4;
 }
 
   /* RESULTS CARD */
