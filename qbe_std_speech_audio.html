@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: transparent; }
+  .root { width: 100%; padding: 12px 8px 8px; }
+  h1 { text-align: center; font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 11px; color: #888780; margin-bottom: 18px; letter-spacing: 0.02em; }
+  .flow { display: flex; align-items: center; gap: 0; width: 100%; }
+
+  .left-col { display: flex; flex-direction: column; gap: 10px; min-width: 136px; }
+
+  .query-card {
+    background: #EEEDFE; border: 1.5px solid #7F77DD; border-radius: 10px;
+    padding: 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  }
+  .query-label { font-size: 10px; font-weight: 700; color: #888780; letter-spacing: 0.08em; }
+  .query-word { font-size: 13px; font-weight: 700; color: #534AB7; }
+
+  .corpus-card {
+    background: #F1EFE8; border: 1.5px solid #B4B2A9; border-radius: 10px;
+    padding: 8px 10px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .corpus-title { font-size: 10px; font-weight: 700; color: #5F5E5A; letter-spacing: 0.08em; text-align: center; }
+
+  .doc-row {
+    display: flex; align-items: center; gap: 6px;
+    background: #D3D1C7; border-radius: 6px; padding: 4px 6px; opacity: 0.65;
+  }
+  .doc-row.match { background: #EEEDFE; border: 1px solid #7F77DD; opacity: 1; }
+  .doc-name { font-size: 10px; font-weight: 700; color: #5F5E5A; min-width: 30px; letter-spacing: 0.05em; }
+  .doc-row.match .doc-name { color: #3C3489; }
+  .wave-mini { flex: 1; height: 22px; }
+
+  .play-btn {
+    background: #534AB7; border: none; cursor: pointer;
+    color: #fff; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px;
+    letter-spacing: 0.04em; transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .play-btn:hover { background: #3C3489; transform: scale(1.05); }
+  .play-btn.active { background: #D85A30; }
+  .play-btn.muted { background: #B4B2A9; cursor: default; }
+
+  .arrow-col { display: flex; flex-direction: column; justify-content: space-around;
+    align-items: center; min-width: 54px; height: 100%; gap: 0; padding: 0 2px; }
+  .arrow-label { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 2px; text-align:center; }
+
+  .system-box {
+    background: linear-gradient(135deg, #534AB7 0%, #7F77DD 100%);
+    border-radius: 12px; padding: 14px 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 106px; gap: 4px; box-shadow: 0 2px 12px rgba(83,74,183,0.18);
+  }
+  .system-title { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: 0.04em; }
+  .system-sub { font-size: 10px; color: #D8D5F8; letter-spacing: 0.08em; font-weight: 600; }
+
+  .results-col {
+    background: #F1EFE8; border: 1.5px solid #B4B2A9; border-radius: 12px;
+    padding: 10px 10px; display: flex; flex-direction: column; gap: 7px; flex: 1;
+  }
+  .results-title { font-size: 10px; font-weight: 700; color: #5F5E5A; letter-spacing: 0.08em; text-align: center; margin-bottom: 2px; }
+
+  .result-card { border-radius: 9px; overflow: hidden; box-shadow: 0 1px 4px rgba(83,74,183,0.08); }
+  .result-header { display: flex; align-items: center; justify-content: space-between; padding: 5px 10px; }
+  .result-rank { font-size: 12px; font-weight: 700; color: #fff; }
+  .result-score { font-size: 10px; color: #fff; background: rgba(255,255,255,0.2); border-radius: 8px; padding: 1px 7px; }
+  .result-body { background: #EEEDFE; padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
+  .match-badge { font-size: 9px; font-weight: 700; color: #534AB7; background: rgba(83,74,183,0.12); border-radius: 5px; padding: 1px 5px; white-space: nowrap; letter-spacing: 0.05em; }
+
+  .no-match-row {
+    background: #D3D1C7; border-radius: 7px; padding: 5px 10px; opacity: 0.55;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .no-match-label { font-size: 11px; font-weight: 700; color: #888780; letter-spacing: 0.05em; }
+  .no-match-tag { font-size: 9px; color: #888780; letter-spacing: 0.05em; }
+
+  .status-bar {
+    margin-top: 10px; text-align: center; font-size: 11px; color: #534AB7;
+    font-weight: 600; min-height: 16px; letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="root">
+  <h1>Query-by-Example Spoken Term Detection</h1>
+  <p class="subtitle">FIND A SPOKEN WORD IN A LARGE AUDIO COLLECTION — NO TRANSCRIPTS, NO LABELS</p>
+
+  <div class="flow">
+
+    <!-- LEFT: QUERY + CORPUS -->
+    <div class="left-col">
+
+      <!-- QUERY CARD -->
+      <div class="query-card">
+        <div style="font-size:20px;">🎙️</div>
+        <div class="query-label">SPOKEN QUERY</div>
+        <div class="query-word">"WATER"</div>
+        <svg viewBox="0 0 110 28" style="width:100%;height:28px;">
+          <polyline fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            points="4,14 10,5 16,20 22,3 28,18 34,8 40,20 46,5 52,17 58,8 64,20 70,6 76,18 82,9 88,20 94,8 100,17 106,10"/>
+        </svg>
+        <button class="play-btn" id="btn-query" onclick="speak('water', 'btn-query', 'QUERY')">▶ PLAY</button>
+      </div>
+
+      <!-- CORPUS CARD -->
+      <div class="corpus-card">
+        <div class="corpus-title">CORPUS</div>
+
+        <!-- doc 1: no match -->
+        <div class="doc-row">
+          <span class="doc-name">DOC 1</span>
+          <svg class="wave-mini" viewBox="0 0 70 22">
+            <polyline fill="none" stroke="#888780" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"
+              points="2,11 7,6 12,14 17,5 22,13 27,7 32,13 37,6 42,12 47,7 52,13 57,7 62,12 67,7"/>
+          </svg>
+          <button class="play-btn muted" id="btn-d1" onclick="speak('The morning sun rose over the hills', 'btn-d1', 'DOC 1')">▶</button>
+        </div>
+
+        <!-- doc 2: match -->
+        <div class="doc-row match">
+          <span class="doc-name">DOC 2</span>
+          <svg class="wave-mini" viewBox="0 0 70 22">
+            <polyline fill="none" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="2,11 6,7 10,14 14,7"/>
+            <rect x="16" y="1" width="24" height="20" rx="3" fill="#7F77DD" opacity="0.18"/>
+            <polyline fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              points="16,11 20,3 24,18 28,2 32,16 36,6 40,11"/>
+            <polyline fill="none" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="40,11 44,7 48,13 52,7 56,13 60,7 64,12 68,7"/>
+          </svg>
+          <button class="play-btn" id="btn-d2" onclick="speak('please bring me some water now', 'btn-d2', 'DOC 2')">▶</button>
+        </div>
+
+        <!-- doc 3: match -->
+        <div class="doc-row match">
+          <span class="doc-name">DOC 3</span>
+          <svg class="wave-mini" viewBox="0 0 70 22">
+            <polyline fill="none" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="2,11 6,7 10,14 14,7 18,13 22,7 26,13 30,8 34,13 38,7 42,12"/>
+            <rect x="44" y="1" width="24" height="20" rx="3" fill="#7F77DD" opacity="0.18"/>
+            <polyline fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              points="44,11 48,3 52,18 56,2 60,16 64,6 68,11"/>
+          </svg>
+          <button class="play-btn" id="btn-d3" onclick="speak('the river flows with clear water', 'btn-d3', 'DOC 3')">▶</button>
+        </div>
+
+        <!-- doc 4: no match -->
+        <div class="doc-row">
+          <span class="doc-name">DOC 4</span>
+          <svg class="wave-mini" viewBox="0 0 70 22">
+            <polyline fill="none" stroke="#888780" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"
+              points="2,11 7,6 12,14 17,5 22,13 27,7 32,13 37,6 42,12 47,7 52,13 57,7 62,12 67,7"/>
+          </svg>
+          <button class="play-btn muted" id="btn-d4" onclick="speak('birds sing in the tall trees', 'btn-d4', 'DOC 4')">▶</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ARROWS: left → system -->
+    <div class="arrow-col" style="height:340px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="arrow-label" style="color:#534AB7;">QUERY</span>
+        <svg viewBox="0 0 50 14" style="width:50px;">
+          <line x1="2" y1="7" x2="40" y2="7" stroke="#7F77DD" stroke-width="1.8"/>
+          <polyline points="34,2 44,7 34,12" fill="none" stroke="#7F77DD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="arrow-label" style="color:#1D9E75;">CORPUS</span>
+        <svg viewBox="0 0 50 14" style="width:50px;">
+          <line x1="2" y1="7" x2="40" y2="7" stroke="#1D9E75" stroke-width="1.8"/>
+          <polyline points="34,2 44,7 34,12" fill="none" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SYSTEM BOX -->
+    <div class="system-box">
+      <div class="system-title">QbE-STD</div>
+      <div class="system-sub">SEARCH SYSTEM</div>
+    </div>
+
+    <!-- ARROW: system → results -->
+    <div style="display:flex;align-items:center;min-width:40px;justify-content:center;">
+      <svg viewBox="0 0 40 14" style="width:40px;">
+        <line x1="2" y1="7" x2="32" y2="7" stroke="#534AB7" stroke-width="1.8"/>
+        <polyline points="26,2 36,7 26,12" fill="none" stroke="#534AB7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- RANKED RESULTS -->
+    <div class="results-col">
+      <div class="results-title">RANKED RESULTS</div>
+
+      <!-- Rank 1: doc 2 -->
+      <div class="result-card">
+        <div class="result-header" style="background:#534AB7;">
+          <span class="result-rank">1. DOC 2</span>
+          <span class="result-score">SCORE 0.91</span>
+        </div>
+        <div class="result-body">
+          <svg viewBox="0 0 110 28" style="flex:1;height:26px;">
+            <polyline fill="none" stroke="#C8C6E8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="2,14 6,9 10,18 14,9"/>
+            <rect x="16" y="2" width="36" height="24" rx="4" fill="#7F77DD" opacity="0.2"/>
+            <polyline fill="none" stroke="#534AB7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+              points="18,14 23,5 28,22 33,3 38,20 43,9 50,14"/>
+            <polyline fill="none" stroke="#C8C6E8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="52,14 56,9 60,16 64,9 68,15 72,9 76,15 80,9 84,15 88,9 92,14 96,9 100,14 104,9 108,13"/>
+          </svg>
+          <span class="match-badge">✦ MATCH</span>
+          <button class="play-btn" id="btn-r1" onclick="speak('please bring me some water now', 'btn-r1', 'DOC 2')">▶</button>
+        </div>
+      </div>
+
+      <!-- Rank 2: doc 3 -->
+      <div class="result-card">
+        <div class="result-header" style="background:#7F77DD;">
+          <span class="result-rank">2. DOC 3</span>
+          <span class="result-score">SCORE 0.74</span>
+        </div>
+        <div class="result-body">
+          <svg viewBox="0 0 110 28" style="flex:1;height:26px;">
+            <polyline fill="none" stroke="#C8C6E8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"
+              points="2,14 6,9 10,16 14,9 18,15 22,9 26,15 30,9 34,15 38,9 42,14 46,9 50,14 56,9 62,14 68,9"/>
+            <rect x="70" y="2" width="36" height="24" rx="4" fill="#7F77DD" opacity="0.2"/>
+            <polyline fill="none" stroke="#534AB7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+              points="72,14 77,5 82,22 87,3 92,20 97,9 104,14"/>
+          </svg>
+          <span class="match-badge">✦ MATCH</span>
+          <button class="play-btn" id="btn-r2" onclick="speak('the river flows with clear water', 'btn-r2', 'DOC 3')">▶</button>
+        </div>
+      </div>
+
+      <!-- No match -->
+      <div class="no-match-row">
+        <span class="no-match-label">DOC 1</span>
+        <span class="no-match-tag">NO MATCH</span>
+      </div>
+      <div class="no-match-row">
+        <span class="no-match-label">DOC 4</span>
+        <span class="no-match-tag">NO MATCH</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="status-bar" id="status"></div>
+</div>
+
+<script>
+let currentUtterance = null;
+let currentBtnEl = null;
+const statusEl = document.getElementById('status');
+
+function speak(text, btnId, label) {
+  const synth = window.speechSynthesis;
+  if (!synth) {
+    statusEl.textContent = 'Speech not supported in this browser.';
+    return;
+  }
+
+  // stop any ongoing speech
+  synth.cancel();
+  if (currentBtnEl) {
+    currentBtnEl.textContent = '▶';
+    currentBtnEl.classList.remove('active');
+  }
+
+  const btn = document.getElementById(btnId);
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.88;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  // pick a natural English voice if available
+  const voices = synth.getVoices();
+  const preferred = voices.find(v =>
+    v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel'))
+  ) || voices.find(v => v.lang.startsWith('en'));
+  if (preferred) utterance.voice = preferred;
+
+  utterance.onstart = () => {
+    btn.textContent = '⏹';
+    btn.classList.add('active');
+    currentBtnEl = btn;
+    statusEl.textContent = `PLAYING: ${label} — "${text}"`;
+  };
+
+  utterance.onend = () => {
+    btn.textContent = '▶';
+    btn.classList.remove('active');
+    currentBtnEl = null;
+    statusEl.textContent = '';
+  };
+
+  utterance.onerror = () => {
+    btn.textContent = '▶';
+    btn.classList.remove('active');
+    currentBtnEl = null;
+    statusEl.textContent = 'Could not play audio.';
+  };
+
+  // voices may not be loaded yet on first call
+  if (voices.length === 0) {
+    synth.onvoiceschanged = () => {
+      const v2 = synth.getVoices().find(v => v.lang.startsWith('en'));
+      if (v2) utterance.voice = v2;
+      synth.speak(utterance);
+    };
+  } else {
+    synth.speak(utterance);
+  }
+
+  currentUtterance = utterance;
+}
+</script>
+</body>
+</html>
