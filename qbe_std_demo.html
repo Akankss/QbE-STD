@@ -97,7 +97,7 @@
   );
 
   border-radius: 18px;
-  width: 150px;
+  width: 100px;
   min-height: 180px;
   padding: 28px 18px;
 
@@ -401,7 +401,7 @@ function speak(text, btnId, label, gender) {
     };
     utter.onend = utter.onerror = () => {
       btn.textContent = btn._orig; btn.classList.remove('active'); currentBtn = null;
-      status.textContent = 'CLICK ▶ ON ANY ELEMENT TO HEAR IT SPOKEN';
+      
     };
     synth.speak(utter);
   }
